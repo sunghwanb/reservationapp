@@ -8,7 +8,7 @@ from openpyxl import Workbook
 from io import BytesIO
 
 RESERVATION_FILE = "reservations.json"
-ADMIN_PASSWORD = "admin1234"
+ADMIN_PASSWORD = "admin123123!"
 
 app = Flask(__name__)
 
