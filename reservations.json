@@ -1,0 +1,9 @@
+{
+  "reservations": {},
+  "manual_open_slots": [],
+  "manual_close_slots": [
+    "11:55",
+    "09:55",
+    "10:55"
+  ]
+}

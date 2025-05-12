@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>예약 현황</title>
+  <style>
+    .past {
+      background-color: #e0e0e0 !important;
+      color: #999 !important;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background-color: #f0f0f0;
+      text-align: center;
+    }
+    .full {
+      color: red;
+    }
+    .available {
+      color: green;
+    }
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    li {
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+
+
+  <h1>📋NO.44 체험부스 예약 현황</h1>
+  <form action="{{ url_for('download_excel') }}" method="get" style="text-align: right; margin: 20px 0;">
+    <button type="submit">📥 엑셀로 다운로드</button>
+  </form>
+  <table>
+    <tr>
+      <th>시간</th>
+      <th>예약 인원</th>
+      <th>상태</th>
+      <th>예약자 명단</th>
+    </tr>
+    {% for slot in time_slots %}
+        <tr class="{% if slot.time_obj < now %}past{% else %}future{% endif %}">
+          <td>{{ slot.time_obj.strftime('%H:%M') }}</td>
+          <td>{{ slot.reserved_count }} / {{ max_people }}</td>
+          <td class="{{ 'full' if slot.reserved_count >= max_people else 'available' }}">
+            {{ '마감' if slot.reserved_count >= max_people else '가능' }}
+          </td>
+          <td>
+            {% if reservations.get(slot.time) %}
+              <ul>
+                {% for name in reservations[slot.time] %}
+                  <li>{{ name }}</li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              -
+            {% endif %}
+          </td>
+        </tr>
+    {% endfor %}
+
+  </table>
+
+
+</body>
+</html>

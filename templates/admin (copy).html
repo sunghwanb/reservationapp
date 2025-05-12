@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 모드</title>
+</head>
+<body>
+    <h1>🔐 관리자 모드</h1>
+
+    {% if not admin_logged_in %}
+    <form method="POST">
+        <label>비밀번호 입력:
+            <input type="password" name="password" required>
+        </label>
+        <button type="submit">로그인</button>
+    </form>
+    <p style="color:red;">{{ message }}</p>
+    {% else %}
+    <hr>
+    
+    <h2>🛠️ 수동 시간 슬롯 오픈</h2>
+    <form method="POST" action="/admin">
+      <input type="hidden" name="action" value="manual_open">
+      <label for="slot_time">시간 선택:</label>
+      <select name="slot_time" id="slot_time">
+        {% for slot in time_slots %}
+          <option value="{{ slot.time }}">{{ slot.time }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit">수동 오픈</button>
+    </form>
+  {% if manual_open_slots %}
+    <h2>🔒 수동 오픈된 시간들</h2>
+    <ul>
+      {% for slot in manual_open_slots %}
+        <li>
+          {{ slot }}
+          <form method="POST" action="/admin" style="display:inline;">
+            <input type="hidden" name="action" value="manual_close">
+            <input type="hidden" name="slot_time" value="{{ slot }}">
+            <button type="submit">닫기</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>❌ 현재 수동 오픈된 슬롯 없음</p>
+  {% endif %}
+
+  
+    <hr>
+    <h2>⛔ 자동 오픈 시간 중 닫고 싶은 시간</h2>
+    <form method="POST" action="/admin">
+      <input type="hidden" name="action" value="manual_force_close">
+      <label for="slot_time">시간 선택:</label>
+      <select name="slot_time" id="slot_time">
+        {% for slot in time_slots %}
+          {% if slot.time not in manual_open_slots and slot.available and slot.time not in manual_close_slots %}
+            <option value="{{ slot.time }}">{{ slot.time }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+      <button type="submit">자동 오픈 닫기</button>
+    </form>
+  {% if manual_close_slots %}
+    <h3>⛔ 강제로 닫은 시간 목록</h3>
+    <p style="color:green;">{{ message }}</p>
+    <ul>
+      {% for slot in manual_close_slots %}
+        <li>
+          {{ slot }}
+          <form method="POST" action="/admin" style="display:inline;">
+            <input type="hidden" name="action" value="cancel_manual_close">
+            <input type="hidden" name="slot_time" value="{{ slot }}">
+            <button type="submit">취소</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <hr>
+  <h2>예약자 삭제</h2>
+    <form method="POST">
+        <input type="hidden" name="action" value="delete">
+        <label>시간 선택:
+            <select name="time">
+                {% for slot in time_slots %}
+                    <option value="{{ slot.time }}">{{ slot.time }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>이름:
+            <input type="text" name="name" required>
+        </label>
+        <button type="submit">삭제</button>
+    </form>
+
+
+  <h2>예약자 검색</h2>
+  <form method="POST">
+      <input type="hidden" name="action" value="search">
+      <input type="text" name="keyword" placeholder="이름 검색">
+      <button type="submit">검색</button>
+  </form>
+
+    <hr>
+    <h2>예약 현황</h2>
+    <ul>
+        {% for time, people in reservations.items() %}
+            <li><strong>{{ time }}</strong>:
+                {% for p in people %}
+                    {{ p }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            </li>
+        {% endfor %}
+    </ul>
+
+
+ 
+
+    <h2 style="margin-top: 30px;">전체 초기화</h2>
+    <form method="POST" onsubmit="return confirm('정말 전체 초기화 하시겠습니까?');">
+        <input type="hidden" name="action" value="reset">
+        <button type="submit" style="color:red;">⚠️ 전체 예약 초기화</button>
+    </form>
+    
+    {% endif %}
+</body>
+</html>

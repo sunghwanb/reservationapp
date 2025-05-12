@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AISW 체험부스 예약</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      padding-left: 20px;
+      padding-right: 20px;
+      margin: 0;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    h1 {
+      font-size: 1.5em;
+      text-align: center;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+    form {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      max-width: 600px;  /* 부모 요소에 최대 너비 설정 */
+      margin: 0 auto;    /* 가운데 정렬 */
+    }
+
+    label {
+      display: block;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input, select, button {
+      width: 100%;  /* 부모 요소 너비에 맞게 확장 */
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1em;
+      box-sizing: border-box; /* 패딩 포함하여 100% 너비 설정 */
+    }
+    button {
+      background-color: #008cba;
+      color: white;
+      margin-top: 10px;
+      cursor: pointer;
+      border: none;
+    }
+    button:hover {
+      background-color: #0077a8;
+    }
+    .info-message {
+      margin-top: 10px;
+      font-size: 0.95em;
+      color: green;
+      text-align: center;
+    }
+    .available { color: green; }
+    .full { color: red; }
+    .closed { color: gray; }
+    .waiting { color: orange; }
+
+    .footer {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 5px;
+      margin-top: 0px;
+    }
+
+    .footer-logo img {
+      height: 25px;
+    }
+
+    .footer-logo h1 {
+      margin: 0;
+      font-size: 1.5em;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body>
+  <h1>
+    AISW 체험축전 <br>
+    NO.44 화났어요? 쏘세요.<br>
+    체험부스 예약 시스템
+  </h1>  
+  <form action="/" method="POST">
+    <label for="name">이름(정확한 이름 미입력시 삭제됨)</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="time">예약 시간</label>
+    <select name="time" id="time" required>
+      {% for slot in time_slots %}
+      {% if not slot.is_force_closed %}
+        <option value="{{ slot.time }}" {% if not slot.available %}disabled{% endif %}>
+          {{ slot.time }} 
+          ({{ slot.reserved_count }}/{{ max_people }})
+          {% if slot.is_closed %}
+            (시간 종료)
+          {% elif slot.is_full %}
+            (예약 마감)
+          {% elif slot.available %}
+            (예약 가능)
+          {% else %}
+            (예약 대기 중)
+          {% endif %}
+        </option>
+      {% endif %}
+      {% endfor %}
+    </select>
+
+    <button type="submit">예약하기</button>
+  </form>
+
+  {% if error_message %}
+    <div style="color: red; font-weight: bold; margin-bottom: 20px; text-align: center;">
+      {{ error_message }}
+    </div>
+  {% endif %}
+
+  {% if user_reserved %}
+    <div id="reservation-confirmation" style="margin-top: 30px; background: 	#fb8c00; padding: 20px; border-radius: 12px; text-align: center;">
+      <h2>🎉 AISW체험축전<br>NO.44 화났어요? 쏘세요.<br>예약이 완료되었습니다!</h2>
+      <p><strong>예약자:</strong> {{ name }}</p>
+      <p><strong>예약 시간:</strong> {{ time }}</p>
+      <p>이 휴대폰으로 예약하셨습니다. 감사합니다!<br> 이 예약시스템은 휴대폰 1대당 <br>1명만 예약가능합니다.</p>
+      <button onclick="captureConfirmation()">📸 예약영역 화면 캡처하기</button>
+    </div>
+  {% endif %}
+
+  <script>
+    function captureConfirmation() {
+      const target = document.getElementById("reservation-confirmation");
+      html2canvas(target).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "aisw_no44_체험부스_예약확인증.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+    }
+  </script>
+
+  <h5>
+    1. 휴대폰 1대당 1명만 예약 가능합니다.<br>
+     &nbsp;&nbsp;&nbsp;예약 시간에 오시지 않으면 취소 처리됩니다.<br><br>
+    2. 예약은 현재시간으로 1시간까지 5분당 2명 예약으로 실시간 오픈됩니다.<br>
+    &nbsp;&nbsp;&nbsp; ex) 현재시간 11:00 -> 12:00까지 5분단위로 2명씩 예약<br><br>
+    3. 예약이 성공하면 캡처하기를 터치하여 저장한 뒤 시간에 맞춰 오셔서 보여주시면 됩니다.
+    <!--3. 오후 예약은 12시 30분부터 오픈됩니다.--> 
+  </h5>
+  <div class="footer-logo">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="상일여자고등학교 로고">
+    <span style="font-size: 1.2em; font-weight: bold;">상일여자고등학교</span>
+  </div>
+
+</body>
+</html>
