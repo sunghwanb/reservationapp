@@ -62,7 +62,7 @@ def generate_time_slots():
         time_str = current.strftime("%H:%M")
         people = reservations.get(time_str, [])
 
-        auto_open = now <= current <= now + timedelta(hours=1)
+        auto_open = now <= current <= now + timedelta(hours=0.5)
         is_open = (auto_open or time_str
                    in manual_open_slots) and time_str not in manual_close_slots
         is_full = len(people) >= MAX_PEOPLE_PER_SLOT
