@@ -19,7 +19,7 @@ manual_close_slots = set()
 KST = timezone(timedelta(hours=9))
 
 start_time = datetime.strptime("08:00", "%H:%M").replace(tzinfo=KST)
-end_time = datetime.strptime("12:00", "%H:%M").replace(tzinfo=KST)
+end_time = datetime.strptime("24:00", "%H:%M").replace(tzinfo=KST)
 time_slot_minutes = 5
 MAX_PEOPLE_PER_SLOT = 2
 
