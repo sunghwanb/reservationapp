@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AISW 체험부스 예약</title>
+  <title>H11 AISW "화났어요? 쏘세요" 체험부스 예약</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     body {
@@ -94,7 +94,7 @@
 <body>
   <h1>
     AISW 체험축전 <br>
-    H11 화났어요? 쏘세요.<br>
+    H11 "화났어요? 쏘세요"<br>
     체험부스 예약 시스템
   </h1>  
   <form action="/" method="POST">
@@ -133,7 +133,7 @@
 
   {% if user_reserved %}
     <div id="reservation-confirmation" style="margin-top: 30px; background: 	#fb8c00; padding: 20px; border-radius: 12px; text-align: center;">
-      <h2>🎉 AISW체험축전<br>H11 화났어요? 쏘세요.<br>예약이 완료되었습니다!</h2>
+      <h2>🎉 AISW체험축전<br>H11 "화났어요? 쏘세요"<br>예약이 완료되었습니다!</h2>
       <p><strong>예약자:</strong> {{ name }}</p>
       <p><strong>예약 시간:</strong> {{ time }}</p>
       <p>이 휴대폰으로 예약하셨습니다. 감사합니다!<br> 이 예약시스템은 휴대폰 1대당 <br>1명만 예약가능합니다.</p>
@@ -146,7 +146,7 @@
       const target = document.getElementById("reservation-confirmation");
       html2canvas(target).then(canvas => {
         const link = document.createElement("a");
-        link.download = "aisw_no44_체험부스_예약확인증.png";
+        link.download = "aisw_H11_체험부스_예약확인증.png";
         link.href = canvas.toDataURL("image/png");
         link.click();
       });
