@@ -11,8 +11,8 @@ from dotenv import load_dotenv
 
 load_dotenv()  # 로컬 개발 시 .env 파일 불러오기
 
-SUPABASE_URL = os.environ.get("https://lnmhamtoqdmlytivhxfi.supabase.co")
-SUPABASE_KEY = os.environ.get("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxubWhhbXRvcWRtbHl0aXZoeGZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDczMTc1OTgsImV4cCI6MjA2Mjg5MzU5OH0.pAnHgJE7J8Z1DopYsV4aWNbkleJzykvMWmg1C_chbRc")
+SUPABASE_URL = "https://lnmhamtoqdmlytivhxfi.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxubWhhbXRvcWRtbHl0aXZoeGZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDczMTc1OTgsImV4cCI6MjA2Mjg5MzU5OH0.pAnHgJE7J8Z1DopYsV4aWNbkleJzykvMWmg1C_chbRc"
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -33,22 +33,25 @@ MAX_PEOPLE_PER_SLOT = 2
 
 def load_reservations_from_supabase():
     global reservations, manual_open_slots, manual_close_slots
+    try :
+        reservations.clear()
+        res = supabase.table("reservations").select("*").execute()
+        for r in res.data:
+            time = r["time"]
+            name = r["name"]
+            reservations.setdefault(time, []).append(name)
 
-    reservations.clear()
-    res = supabase.table("reservations").select("*").execute()
-    for r in res.data:
-        time = r["time"]
-        name = r["name"]
-        reservations.setdefault(time, []).append(name)
-
-    manual_open_slots.clear()
-    manual_close_slots.clear()
-    settings = supabase.table("manual_settings").select("*").execute()
-    for s in settings.data:
-        if s.get("manual_open"):
-            manual_open_slots.add(s["slot_time"])
-        if s.get("manual_close"):
-            manual_close_slots.add(s["slot_time"])
+        manual_open_slots.clear()
+        manual_close_slots.clear()
+        settings = supabase.table("manual_settings").select("*").execute()
+        for s in settings.data:
+            if s.get("manual_open"):
+                manual_open_slots.add(s["slot_time"])
+            if s.get("manual_close"):
+                manual_close_slots.add(s["slot_time"])
+        logger.info("Supabase에서 데이터를 성공적으로 로드했습니다")
+    except Exception as e:
+        logger.error(f"Supabase에서 데이터 로드 중 오류 발생: {e}")
 
 def save_reservations_to_supabase():
     supabase.table("reservations").delete().neq("time", "").execute()
